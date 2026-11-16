@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Тест-лендинг</title>
+<style>
+:root{--bg:#0f1220;--card:#1a1f36;--acc:#6c5ce7;--tx:#eef}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.5 system-ui,sans-serif;background:var(--bg);color:var(--tx)}
+.wrap{max-width:760px;margin:auto;padding:24px 16px 60px}
+h1{font-size:28px;margin:12px 0}
+.sub{opacity:.7}
+.card{background:var(--card);border-radius:16px;padding:18px;margin:16px 0}
+button{background:var(--acc);color:#fff;border:0;border-radius:10px;padding:12px 16px;font:inherit;cursor:pointer}
+button.ghost{background:transparent;border:1px solid #ffffff30}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tabs button{flex:1;background:#ffffff12}
+.tabs button.on{background:var(--acc)}
+.tabp{display:none}.tabp.on{display:block}
+.hide{max-height:0;overflow:hidden;transition:.3s}
+.hide.open{max-height:200px}
+input,textarea{width:100%;padding:10px;border-radius:10px;border:1px solid #ffffff30;background:#ffffff10;color:var(--tx);font:inherit;margin-bottom:8px}
+.like{cursor:pointer;font-size:28px;user-select:none}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(80px);background:#fff;color:#111;padding:10px 18px;border-radius:30px;transition:.3s;z-index:9}
+.toast.on{transform:translateX(-50%)}
+#timer{font:32px monospace;color:var(--acc)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🧪 Тест-лендинг</h1>
+  <p class="sub">Одна страница, десяток разных механик. Кликай всё подряд.</p>
+
+  <div class="card">
+    <div class="row">
+      <button onclick="toast('Кнопка нажата!')">Кнопка</button>
+      <button class="ghost" onclick="copyLink()">Скопировать ссылку</button>
+      <button class="ghost" onclick="document.body.classList.toggle('light')">Светлая тема</button>
+    </div>
+    <p style="margin-top:14px">Лайк: <span class="like" onclick="like(this)">🤍</span> <span id="cnt">0</span></p>
+  </div>
+
+  <div class="card">
+    <h3>Табы</h3>
+    <div class="tabs">
+      <button class="on" onclick="tab(0,this)">Первое</button>
+      <button onclick="tab(1,this)">Второе</button>
+      <button onclick="tab(2,this)">Третье</button>
+    </div>
+    <div class="tabp on">Тут первый блок с текстом.</div>
+    <div class="tabp">А вот второй — другой контент.</div>
+    <div class="tabp">И третий. Переключается без перезагрузки.</div>
+  </div>
+
+  <div class="card">
+    <h3>Аккордеон</h3>
+    <p class="sub">Нажми, чтобы раскрыть</p>
+    <button class="ghost" onclick="acc(this)">Показать детали</button>
+    <div class="hide"><p>Скрытый текст, который плавно раскрывается.</p></div>
+  </div>
+
+  <div class="card">
+    <h3>Таймер</h3>
+    <div id="timer">00:00</div>
+    <div class="row" style="margin-top:10px">
+      <button onclick="startT()">Старт</button>
+      <button class="ghost" onclick="clearInterval(ti);document.getElementById('timer').textContent='00:00'">Сброс</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Форма (уходит в Telegram)</h3>
+    <input id="nm" placeholder="Имя">
+    <input id="em" placeholder="Почта">
+    <textarea id="ms" rows="3" placeholder="Сообщение"></textarea>
+    <button onclick="send()">Отправить</button>
+  </div>
+
+  <div class="card">
+    <h3>Прогресс</h3>
+    <div style="background:#ffffff18;border-radius:20px;height:18px;overflow:hidden">
+      <div id="bar" style="height:100%;width:0;background:linear-gradient(90deg,#6c5ce7,#00d2ff);transition:.4s"></div>
+    </div>
+    <p class="sub" id="pct">0%</p>
+    <button onclick="prog()">+25%</button>
+  </div>
+</div>
+
+<div class="toast" id="t"></div>
+
+<script>
+let n=0;
+function like(e){n++;e.textContent=n%2?'❤️':'🤍';document.getElementById('cnt').textContent=n;}
+function toast(m){const t=document.getElementById('t');t.textContent=m;t.classList.add('on');clearTimeout(t.tt);t.tt=setTimeout(()=>t.classList.remove('on'),1600);}
+function copyLink(){navigator.clipboard?.writeText(location.href).then(()=>toast('Ссылка скопирована'));}
+function tab(i,b){document.querySelectorAll('.tabp').forEach(x=>x.classList.remove('on'));document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on'));b.classList.add('on');document.querySelectorAll('.tabp')[i].classList.add('on');}
+function acc(b){b.nextElementSibling.classList.toggle('open');b.textContent=b.nextElementSibling.classList.contains('open')?'Скрыть':'Показать детали';}
+let ti,s=0;
+function startT(){clearInterval(ti);ti=setInterval(()=>{s++;document.getElementById('timer').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');},1000);}
+function send(){const t=`Привет! Меня зовут ${document.getElementById('nm').value||'аноним'}. ${document.getElementById('ms').value||''}`.trim();location.href='https://t.me/share/url?url='+encodeURIComponent(location.href)+'&text='+encodeURIComponent(t);}
+function prog(){const b=document.getElementById('bar');let w=parseInt(b.style.width)+25;if(w>100)w=0;b.style.width=w+'%';document.getElementById('pct').textContent=w+'%';}
+</script>
+<style>.light{--bg:#f6f7fb;--card:#fff;--tx:#14162b}</style>
+</body>
+</html>
